@@ -9,6 +9,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
 import java.util.Date;
@@ -19,8 +23,11 @@ import java.util.Date;
 //@JsonIgnoreProperties(value = {"password", "ssn"})
 @JsonFilter("UserInfo")
 @ApiModel(description = "사용자 상세 정보를 위한 도메인 객체")
+@Entity // 프로젝트 실행시 DB에 자동생성
 public class User {
 
+    @Id
+    @GeneratedValue
     private Integer id;
 
     @Size(min=2, message = "이름은 2글자 이상이어야 합니다.")

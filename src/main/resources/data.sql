@@ -1,0 +1,7 @@
+INSERT INTO USER VALUES (1, null, 'User1', 'test1', '701211-1234992');
+
+INSERT INTO USER VALUES (2, null, 'User2', 'test2', '801211-2234992');
+
+INSERT INTO USER VALUES (3, null, 'User3','test3', '921211-1044992');
+
+INSERT INTO USER VALUES (4, null, 'User4','test4', '910311-1044992');
