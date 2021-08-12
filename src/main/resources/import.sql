@@ -1,8 +1,8 @@
-INSERT INTO USER VALUES (1, null, 'User1', 'test1', '701211-1234992');
+INSERT INTO USER VALUES (1, sysdate, 'User1', 'test1', '701211-1234992');
 
-INSERT INTO USER VALUES (2, null, 'User2', 'test2', '801211-2234992');
+INSERT INTO USER VALUES (2, sysdate, 'User2', 'test2', '801211-2234992');
 
-INSERT INTO USER VALUES (3, null, 'User3','test3', '921211-1044992');
+INSERT INTO USER VALUES (3, sysdate, 'User3','test3', '921211-1044992');
 
 -- 우선순위 Hibernate > Script
 
