@@ -19,6 +19,8 @@ import java.util.*;
 @EnableSwagger2
 public class SwaggerConfig {
 
+    // http://localhost:8088/swagger-ui.html
+
     private static final Contact DEFAULT_CONTACT = new Contact("Jun",
             "https://www.naver.com", "junc94@naver.com");
 

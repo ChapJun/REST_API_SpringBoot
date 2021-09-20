@@ -27,7 +27,7 @@ public class UserDaoService {
     public User findOne(int id) {
 
         for (User user: users) {
-            if(user.getId() == id)
+            if(user.getUserId() == id)
                 return user;
         }
 
@@ -36,8 +36,8 @@ public class UserDaoService {
 
     public User save(User user) {
 
-        if(user.getId() == null) {
-            user.setId(users.size() + 1);
+        if(user.getUserId() == null) {
+            user.setUserId(users.size() + 1);
         }
 
         users.add(user);
@@ -46,7 +46,7 @@ public class UserDaoService {
 
     public User update(User user) {
 
-        User upUser = users.stream().filter(u -> u.getId().equals(user.getId())).findFirst().orElse(null);
+        User upUser = users.stream().filter(u -> u.getUserId().equals(user.getUserId())).findFirst().orElse(null);
 
         if(upUser == null) {
             return null;
@@ -58,7 +58,7 @@ public class UserDaoService {
     }
 
     public boolean deleteById(int id) {
-        return users.removeIf(user -> user.getId() == id);
+        return users.removeIf(user -> user.getUserId() == id);
     }
 
 }

@@ -1,7 +1,7 @@
 package com.abl.mydata.auth.controller;
 
-import com.abl.mydata.auth.domain.User;
-import com.abl.mydata.auth.domain.UserRepository;
+import com.abl.mydata.auth.domain.*;
+import com.abl.mydata.auth.exception.PostNotFoundException;
 import com.abl.mydata.auth.exception.UserNotFoundException;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
@@ -9,13 +9,14 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJacksonValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.swing.text.html.Option;
+import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,9 +28,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class UserJpaController {
 
     private final UserRepository userRepository;
+    private final PostRepository postRepository;
 
-    public UserJpaController(UserRepository userRepository) {
+    public UserJpaController(UserRepository userRepository, PostRepository postRepository) {
         this.userRepository = userRepository;
+        this.postRepository = postRepository;
     }
 
     // http://localhost:8088/jpa/users
@@ -39,7 +42,7 @@ public class UserJpaController {
         List<User> users = userRepository.findAll();
 
         SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter
-                .filterOutAllExcept("id", "name", "joinDate");
+                .filterOutAllExcept("id", "name", "joinDate", "posts");
 
         FilterProvider filterProvider = new SimpleFilterProvider()
                 .addFilter("UserInfo", filter);
@@ -47,6 +50,23 @@ public class UserJpaController {
         MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(users);
         mappingJacksonValue.setFilters(filterProvider);
         return mappingJacksonValue;
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+
+        User savedUser = userRepository.save(user);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(savedUser.getUserId())
+                .toUri();
+
+        return ResponseEntity.created(location).build();
+    }
+
+    @DeleteMapping("/users/{id}")
+    public void deleteUser(@PathVariable int id) {
+        userRepository.deleteById(id);
     }
 
     @GetMapping(path = "/users/{id}")
@@ -81,4 +101,46 @@ public class UserJpaController {
         return mappingJacksonValue;
 
     }
+
+    @GetMapping("/users/{id}/posts")
+    public List<Post> retrieveAllPostsByUser(@PathVariable int id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow( () -> new UserNotFoundException(String.format("ID[%S] not found", id)));
+
+        return user.getPosts();
+    }
+
+    @PostMapping("/users/{id}/posts")
+    public ResponseEntity<Post> createPost(@PathVariable Integer id, @RequestBody Post post) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow( () -> new UserNotFoundException(String.format("ID[%S] not found", id)));
+
+        post.setUser(user);
+        Post savedPost = postRepository.save(post);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(savedPost.getPostId())
+                .toUri();
+
+        return ResponseEntity.created(location).build();
+    }
+
+    @GetMapping("/users/{id}/posts/{postId}")
+    public Post retrievePost(@PathVariable int id, @PathVariable int postId) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow( () -> new UserNotFoundException(String.format("ID[%S] not found", id)));
+
+        Optional<Post> post = postRepository.findById(postId);
+
+        if(post.isEmpty()) {
+            throw new PostNotFoundException(String.format("UserId[%s], PostId[%s] not found", id, postId));
+        }
+
+        return post.get();
+    }
+
 }

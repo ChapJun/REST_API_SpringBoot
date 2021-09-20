@@ -80,7 +80,7 @@ public class UserController {
         User savedUser = service.save(user);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(savedUser.getId())
+                .buildAndExpand(savedUser.getUserId())
                 .toUri();
 
         logger.info(location.toString());
@@ -92,7 +92,7 @@ public class UserController {
         User updateUser = service.update(user);
 
         if(updateUser == null) {
-            throw new UserNotFoundException(String.format("ID[%S] not found", user.getId()));
+            throw new UserNotFoundException(String.format("ID[%S] not found", user.getUserId()));
         }
     }
 
